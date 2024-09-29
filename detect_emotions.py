@@ -62,4 +62,6 @@ def emotion_detection(filename):
 
     return emotions
 
-print(emotion_detection('interview.mp4'))
+# print(emotion_detection('interview.mp4'))
+
+print(emotion_detection('/uploads/recorded_video.webm'))
