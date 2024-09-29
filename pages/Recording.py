@@ -16,6 +16,7 @@ html_code = """
         }
         body {
             text-align: center;
+
         }
         .inline-element {
             display: inline-block; /* Ensures elements remain inline */
@@ -46,7 +47,7 @@ html_code = """
             padding: 10px 20px;
             margin: 10px;
             font-size: 16px;
-            background-color: #4CAF50; /* Green background */
+            background-color: #011638; /* Green background */
             color: white;
             border: none;
             border-radius: 5px;

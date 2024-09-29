@@ -9,8 +9,9 @@ import st_tailwind as tw
 st.markdown("""
 <style>
 body {
-    backgroundColor: #182121;   
+    backgroundColor: blue;   
     text-align: center;
+
 }
 
 @keyframes typing {
