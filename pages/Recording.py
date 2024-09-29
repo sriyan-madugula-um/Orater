@@ -1,5 +1,8 @@
 import streamlit as st
-
+import sys
+sys.path.append(r'C:\Users\hrwan\OneDrive\Documents\GitHub\PublicSpeaking')
+from detect_emotion import emotion_detection
+from app import main as metrics
 
 # HTML and JavaScript for video/audio recording
 html_code = """
@@ -95,17 +98,23 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         // Stop recording and create the download link
         mediaRecorder.onstop = function() {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'recorded_video.webm';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a); // Remove the temporary anchor element
-            console.log("Video automatically downloaded");
 
+            // Create a form to send the blob to the server
+            const formData = new FormData();
+            formData.append("file", blob, "recorded_video.webm");
+
+            // Send the video to the Flask server
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:5000/upload", true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    console.log("Video successfully uploaded.");
+                } else {
+                    console.error("Failed to upload video.");
+                }
+            };
+            xhr.send(formData);
+            
             // Stop the media stream and end the video preview
             stream.getTracks().forEach(track => track.stop());
             document.getElementById('preview').srcObject = null;
@@ -136,3 +145,11 @@ document.getElementById('stopButton').onclick = function() {
 
 # Streamlit app
 st.components.v1.html(html_code, height=800)
+
+if st.button('Display Metrics: '):
+    emotes = emotion_detection('recorded_video.webm')
+    metricals, obamtext = metrics()
+    st.write(f'Happiness is: ', {emotes['happy']})
+    st.write(metricals)
+    st.write(obamtext)
+    st.audio('output.mp3')
