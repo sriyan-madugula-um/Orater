@@ -1,10 +1,25 @@
 import cv2
 from deepface import DeepFace
+import streamlit as st
+import requests
 import os
+
+# Function to download the video from the Flask server
+def download_video(filename):
+    FLASK_SERVER_URL = "http://localhost:5000/uploads"
+    response = requests.get(f"{FLASK_SERVER_URL}/{filename}")
+
+    if response.status_code == 200:
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        return filename
+    else:
+        st.error(f"Failed to download {filename}: {response.status_code}")
+        return None
 
 def emotion_detection(filename):
     emotions = {'angry': 0, 'disgust': 0, 'fear': 0, 'sad': 0, 'happy': 0, 'surprise': 0, 'neutral': 0, 'no face': 0}
-    VIDEOS_DIR = 'videos'
+    VIDEOS_DIR = 'uploads'
     VIDEO_NAME = filename
     emotion_color_mapping = {
         'angry': (0, 0, 255),
@@ -15,6 +30,11 @@ def emotion_detection(filename):
         'surprise': (0, 255, 0),
         'neutral': (128, 128, 128),
     }
+
+    # Download the video from the Flask server
+    downloaded_file = download_video(VIDEO_NAME)
+    if downloaded_file is None:
+        return {"error": "Failed to download the video."}
 
     video_path = os.path.join(VIDEOS_DIR, VIDEO_NAME)
     video_path_out = '{}_out.mp4'.format(video_path[:-4])
@@ -47,7 +67,8 @@ def emotion_detection(filename):
                             emotions[emotion] += 1
                         else:
                             emotions[emotion] = 1
-                    except:
+                    except Exception as e:
+                        print(f"Error analyzing face: {e}")
                         emotions["no face"] += 1
                 else:
                     emotions["no face"] += 1
@@ -62,6 +83,6 @@ def emotion_detection(filename):
 
     return emotions
 
-# print(emotion_detection('interview.mp4'))
-
-print(emotion_detection('/uploads/recorded_video.webm'))
+# Specify the video file you want to analyze
+video_filename = 'recorded_video.webm'
+print(emotion_detection(video_filename))

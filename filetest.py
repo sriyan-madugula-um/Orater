@@ -1,5 +1,8 @@
 import streamlit as st
 
+from detect_emotions import emotion_detection
+from app import main as metrics
+
 # HTML and JavaScript for video/audio recording
 html_code = """
 <!DOCTYPE html>
@@ -94,3 +97,11 @@ document.getElementById('stopButton').onclick = function() {
 # Streamlit app
 st.title("Video and Audio Recorder")
 st.components.v1.html(html_code, height=600)
+if st.button('Display Metrics: '):
+    emotes = emotion_detection('recorded_video.webm')
+    metricals, obamtext = metrics()
+    st.write(f'Happiness is: ', {emotes['happy']})
+    st.write(metricals)
+    st.write(obamtext)
+    st.audio('output.mp3')
+
