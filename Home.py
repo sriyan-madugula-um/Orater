@@ -87,7 +87,7 @@ st.markdown(
     .button {
         padding: 10px 20px;
         font-size: 16px;
-        background-color: #011638; /* Default background color */
+        background-color: #364156; /* Default background color */
         color: white;
         border: none;
         border-radius: 5px;
@@ -127,7 +127,7 @@ st.markdown(
             button.style.backgroundColor = '#555';  // Darken on hover
         });
         button.addEventListener('mouseout', () => {
-            button.style.backgroundColor = '#011638';  // Return to default color when not hovering
+            button.style.backgroundColor = '#364156';  // Return to default color when not hovering
         });
     });
     </script>
