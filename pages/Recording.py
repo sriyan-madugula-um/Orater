@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 # HTML and JavaScript for video/audio recording
 html_code = """
 <!DOCTYPE html>
@@ -8,14 +9,62 @@ html_code = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video and Audio Recording</title>
+    <style>
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        body {
+            text-align: center;
+        }
+        .inline-element {
+            display: inline-block; /* Ensures elements remain inline */
+            margin-bottom: 20px;   /* Adds 20px of vertical space */
+        }
+
+        .mainTitle {
+            font-size: 65px;
+            color: #8eb1c7;
+            font-family: 'Abolition', sans-serif;
+            white-space: nowrap;
+            width: 0;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 10px; 
+            animation: typing 2.5s steps(40, end);
+            animation-fill-mode: forwards;
+        }
+
+        /* Add margin to ensure buttons are visible and not overlapped by the video */
+        video {
+            margin-bottom: 20px; /* Add space below the video */
+        }
+
+        /* Style buttons */
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+    </style>
 </head>
 <body>
-
-<h1>Record Video and Audio</h1>
+<h1 class="mainTitle">Record Your Speech</h1>
 
 <!-- Video element for live preview -->
 <video id="preview" controls autoplay style="width: 100%; max-width: 640px;"></video>
 <br/>
+
 
 <!-- Buttons to start and stop recording -->
 <button id="startButton">Start Recording</button>
@@ -86,5 +135,4 @@ document.getElementById('stopButton').onclick = function() {
 """
 
 # Streamlit app
-st.title("Video and Audio Recorder")
-st.components.v1.html(html_code, height=600)
+st.components.v1.html(html_code, height=800)
