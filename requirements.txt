@@ -1,2 +1,7 @@
 streamlit
-streamlit-webrtc
+groq
+pydub
+os
+cv2
+deepface
+librosa
