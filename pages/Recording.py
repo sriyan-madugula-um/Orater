@@ -47,7 +47,7 @@ html_code = """
             padding: 10px 20px;
             margin: 10px;
             font-size: 16px;
-            background-color: #011638; /* Green background */
+            background-color: #364156; /* Green background */
             color: white;
             border: none;
             border-radius: 5px;
@@ -55,7 +55,7 @@ html_code = """
         }
 
         button:hover {
-            background-color: #45a049; /* Darker green on hover */
+            background-color: #555; /* Darker green on hover */
         }
     </style>
 </head>
