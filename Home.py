@@ -3,14 +3,15 @@ from groq import Groq
 
 import streamlit as st
 
-import st_tailwind as tw
 
 # Inject custom CSS for typing animation without blinking cursor and with center alignment
 st.markdown("""
 <style>
 body {
-    backgroundColor: #182121;   
+    backgroundColor: blue;   
     text-align: center;
+    text-color: white;
+
 }
 
 @keyframes typing {
@@ -48,7 +49,7 @@ body {
     text-align: center;
 }
 .button{
-    background-color: #011638;
+    background-color: #364156;
     color: white;
     padding: 15px 32px;
     text-align: center;
@@ -57,6 +58,26 @@ body {
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+}
+button[kind="primary"] {
+    color: white !important; /* Text color */
+    background-color: #364156 !important; /* Button background color */
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 10px 20px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+button[kind="primary"]:hover {
+    color: #ffcc00 !important; /* Text color on hover */
+    background-color: #555 !important; /* Background color on hover */
+}
+
+button[kind="primary"]:active {
+    color: white !important; /* Text color when clicked */
+    background-color: #4CAF50 !important; /* Background color when clicked */
 }
 </style>
 """, unsafe_allow_html=True)
@@ -72,64 +93,9 @@ pressed = st.button("Start Recording")
 
 if pressed:
     if user_input:
+        with open("output.txt", "w") as file:
+            file.write(user_input)
         st.success("Recording started!")
         st.switch_page("pages/Recording.py")
     else:
         st.error("Please enter your prompt before proceeding")
-
-import streamlit as st
-
-# Streamlit markdown with HTML, CSS, and JavaScript for interactive buttons
-st.markdown(
-    """
-    <style>
-    .button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #011638; /* Default background color */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .button:hover {
-        background-color: #555; /* Color on hover */
-    }
-
-    .button:active {
-        background-color: #4CAF50; /* Color when clicked */
-    }
-
-    /* Align buttons centrally and add space between them */
-    .button-container {
-        display: flex;
-        justify-content: center;
-        gap: 10px; /* Space between buttons */
-        margin-top: 20px;
-    }
-    </style>
-
-    <div class="button-container">
-        <button id="button1" class="button" onclick="buttonClicked('button1')">Button 1</button>
-        <button id="button2" class="button" onclick="buttonClicked('button2')">Button 2</button>
-    </div>
-
-    <script>
-    function buttonClicked(buttonId) {
-        document.getElementById(buttonId).style.backgroundColor = '#4CAF50';  // Change to green when clicked
-    }
-
-    document.querySelectorAll('.button').forEach(button => {
-        button.addEventListener('mouseover', () => {
-            button.style.backgroundColor = '#555';  // Darken on hover
-        });
-        button.addEventListener('mouseout', () => {
-            button.style.backgroundColor = '#011638';  // Return to default color when not hovering
-        });
-    });
-    </script>
-    """,
-    unsafe_allow_html=True
-)

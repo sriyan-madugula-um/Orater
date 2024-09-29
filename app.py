@@ -175,32 +175,73 @@ def extract_audio_features(file_path):
         'mfcc_mean': mfcc_mean
     }
 
-def compute_confidence_score(features) -> float:
-    score = 10
-    
-    # Average pitch penalties
-    if features['average_pitch'] < 300:
-        score -= (300 - features['average_pitch']) / 300
-    elif features['average_pitch'] > 1000:
-        score -= (features['average_pitch'] - 1000) / 300
-    
-    # Harmonic-to-noise ratio adjustment
-    if features['hnr'] < 10:
-        score -= (10 - features['hnr']) / 10  # Arbitrary threshold for clarity
-    
-    # Tempo penalties
-    if features['tempo'] < 60 or features['tempo'] > 180:
-        score -= 0.8
+def compute_confidence_score(features, file_path) -> float:
+    # Load the audio file
+    y, sr = librosa.load(file_path, sr=None)
 
-    # RMS energy penalties
-    if features['rms_energy'] < 0.05:
-        score -= 0.8  # Example threshold
+    # Calculate the duration of the audio file
+    duration = librosa.get_duration(y=y, sr=sr)
     
-    # MFCC consistency assessment (example)
-    if np.std(features['mfcc_mean']) > 2:  # Arbitrary threshold for variability
-        score -= 0.8
+    # Calculate the length of each segment
+    segment_length = int(len(y) / 10)
     
-    return max(1, min(10, score))
+    # Initialize a list to store features for each segment
+    features_list = []
+
+    for i in range(10):
+        # Calculate the start and end sample indices for the segment
+        start_sample = i * segment_length
+        end_sample = (i + 1) * segment_length if i < 9 else len(y)
+        
+        # Extract the segment
+        y_segment = y[start_sample:end_sample]
+        
+        # Extract features for the segment
+        pitches, magnitudes = librosa.piptrack(y=y_segment, sr=sr)
+        pitch_avg = np.mean(pitches[pitches > 0])
+        hnr = librosa.effects.hpss(y_segment)[0]  # Harmonic component
+        hnr_value = np.mean(20 * np.log10(np.mean(1 + hnr)))
+        tempo, _ = librosa.beat.beat_track(y=y_segment, sr=sr)
+        rms = np.mean(librosa.feature.rms(y=y_segment))
+        mfccs = librosa.feature.mfcc(y=y_segment, sr=sr, n_mfcc=13)
+        mfcc_mean = np.mean(mfccs, axis=1)
+        
+        # Store the features in a dictionary
+        features = {
+            'average_pitch': pitch_avg,
+            'hnr': hnr_value,
+            'tempo': tempo,
+            'rms_energy': rms,
+            'mfcc_mean': mfcc_mean
+        }
+
+        score = 10
+    
+        # Average pitch penalties
+        if features['average_pitch'] < 300:
+            score -= (300 - features['average_pitch']) / 300
+        elif features['average_pitch'] > 1000:
+            score -= (features['average_pitch'] - 1000) / 300
+        
+        # Harmonic-to-noise ratio adjustment
+        if features['hnr'] < 10:
+            score -= (10 - features['hnr']) / 10  # Arbitrary threshold for clarity
+        
+        # Tempo penalties
+        if features['tempo'] < 60 or features['tempo'] > 180:
+            score -= 0.8
+
+        # RMS energy penalties
+        if features['rms_energy'] < 0.05:
+            score -= 0.8  # Example threshold
+        
+        # MFCC consistency assessment (example)
+        if np.std(features['mfcc_mean']) > 2:  # Arbitrary threshold for variability
+            score -= 0.8
+        
+        features_list.append(round(max(1, min(10, score)),2)) 
+    
+    return features_list
 
 def obama(text):
     # Initialize PlayHT API with your credentials
@@ -252,11 +293,15 @@ def obama(text):
 
 
 def main():
+
+    metrics = {}
+
     # Specify the path to the audio file
     filename = download_video('recorded_video.webm') # Replace with your audio file!
 
     audio = AudioSegment.from_file(filename)
-    length = len(audio) / 1000
+    length = len(audio) // 1000
+    metrics["Length"] = length
     print(length)
 
     # Open the audio file
@@ -276,15 +321,15 @@ def main():
     features = extract_audio_features(filename)
     print(features)
 
-    metrics = {}
 
     # Compute the confidence score
-    confidence_score = compute_confidence_score(features)
+    confidence_score = compute_confidence_score(features, filename)
     print(f"Confidence score: {confidence_score}")
     metrics["Confidence"] = confidence_score
 
     # Calculate the speed score
     text = translation.text
+    metrics["Text"] = text
     speed = speed_score(text, length/60)
     print(f"Speed score: {speed}")
     metrics["Speed"] = speed
@@ -295,7 +340,12 @@ def main():
     metrics["Filler score"] = filler_score
 
     # Ask a question to evaluate relevance
-    question = "Tell me about yourself."
+    question = None
+    with open('output.txt', 'r') as file:
+        content = file.read()
+        question = content
+    # question = "Tell me about yourself."
+    print(question)
     relevance = relevance_score(question, text)
     print(f"Relevance score: {relevance}")
     metrics["Relevance score"] = relevance
@@ -313,7 +363,7 @@ def main():
         },
         {
             "role": "user",
-            "content": f"Rephrase the following text in the style of Barack Obama, make the text a stronger argument, remove filler words, keep the same word count, the same structure, and same meaning: {text}"
+            "content": f"Rephrase the following text in the style of Barack Obama, make the text a stronger argument, remove filler words, keep the same word count, the same structure, and same meaning, and nothing else: {text}"
         }
     ],
     model="gemma2-9b-it",

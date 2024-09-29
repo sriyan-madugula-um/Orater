@@ -1,8 +1,83 @@
 import streamlit as st
-import sys
-sys.path.append(r'C:\Users\hrwan\OneDrive\Documents\GitHub\PublicSpeaking')
-from detect_emotion import emotion_detection
-from app import main as metrics
+import streamlit.components.v1 as components
+
+st.markdown("""
+<style>
+body {
+    backgroundColor: blue;   
+    text-align: center;
+    text-color: white;
+
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.mainTitle {
+    font-size: 75px;
+    color: #8eb1c7;
+    font-family: 'Abolition', sans-serif;
+    white-space: nowrap; /* Prevent text from wrapping */
+    width: 0;
+    overflow: hidden; /* Hide the text until it is revealed */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10; /* Remove default bottom margin */
+    animation: typing 2.5s steps(40, end);
+    animation-fill-mode: forwards; /* Keep the final state after animation ends */
+    text-align: center;
+}
+
+.description {
+    font-size: 25px;
+    color: #c1bfb5;
+    font-family: 'Abolition', sans-serif;
+    white-space: nowrap;
+    width: 0;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+    animation: typing 3.5s steps(60, end);
+    animation-delay: 2.5s; /* Delay description animation until title finishes */
+    animation-fill-mode: forwards;
+    text-align: center;
+}
+.button{
+    background-color: #364156;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+button[kind="primary"] {
+    color: white !important; /* Text color */
+    background-color: #364156 !important; /* Button background color */
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 10px 20px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+button[kind="primary"]:hover {
+    color: #ffcc00 !important; /* Text color on hover */
+    background-color: #555 !important; /* Background color on hover */
+}
+
+button[kind="primary"]:active {
+    color: white !important; /* Text color when clicked */
+    background-color: #4CAF50 !important; /* Background color when clicked */
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 
 # HTML and JavaScript for video/audio recording
 html_code = """
@@ -19,6 +94,7 @@ html_code = """
         }
         body {
             text-align: center;
+
         }
         .inline-element {
             display: inline-block; /* Ensures elements remain inline */
@@ -49,7 +125,7 @@ html_code = """
             padding: 10px 20px;
             margin: 10px;
             font-size: 16px;
-            background-color: #4CAF50; /* Green background */
+            background-color: #364156; /* Green background */
             color: white;
             border: none;
             border-radius: 5px;
@@ -57,7 +133,7 @@ html_code = """
         }
 
         button:hover {
-            background-color: #45a049; /* Darker green on hover */
+            background-color: #555; /* Darker green on hover */
         }
     </style>
 </head>
@@ -65,7 +141,7 @@ html_code = """
 <h1 class="mainTitle">Record Your Speech</h1>
 
 <!-- Video element for live preview -->
-<video id="preview" controls autoplay style="width: 100%; max-width: 640px;"></video>
+<video id="preview" controls autoplay muted style="width: 100%; max-width: 640px;"></video>
 <br/>
 
 
@@ -114,7 +190,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 }
             };
             xhr.send(formData);
-            
+
             // Stop the media stream and end the video preview
             stream.getTracks().forEach(track => track.stop());
             document.getElementById('preview').srcObject = null;
@@ -146,10 +222,7 @@ document.getElementById('stopButton').onclick = function() {
 # Streamlit app
 st.components.v1.html(html_code, height=800)
 
-if st.button('Display Metrics: '):
-    emotes = emotion_detection('recorded_video.webm')
-    metricals, obamtext = metrics()
-    st.write(f'Happiness is: ', {emotes['happy']})
-    st.write(metricals)
-    st.write(obamtext)
-    st.audio('output.mp3')
+pressed = st.button("Go to Metrics")
+
+if pressed:
+    st.switch_page("pages/Metrics.py")
